@@ -2,10 +2,10 @@ pipeline {
   agent any
   
   stages {
-    stage('checkout') {
+    stage('Checkout') {
       steps {
-        checkout scm 
-      } 
+        git branch: 'main', url: 'https://github.com/krutipatel15/jenkins-java-cicd.git'
+      }
     }
   }
 }
