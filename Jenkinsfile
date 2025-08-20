@@ -18,6 +18,7 @@ pipeline {
       steps {
 	dir('app/') {
 	sh "mvn -f ${APP}/pom.xml -B -ntp -DskipTests package"    
+      }
     }
   }
 }
