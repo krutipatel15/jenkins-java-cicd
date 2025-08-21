@@ -9,7 +9,8 @@ pipeline {
         APP = 'app'
         REGISTRY = 'krutipatel15'
         IMAGE_NAME = 'jenkins-java-image'
-        DOCKER_TAG = '1.0'
+        DOCKER_TAG = '1.0.1'
+        REGISTRY_CRED = 'REGISTRY_CRED'
     }
 
     stages {
@@ -32,6 +33,7 @@ pipeline {
                     sh "mvn clean test"
                 }
             }
+        }
         stage('Docker Build & Push') {
             steps {
               sh """
@@ -43,6 +45,7 @@ pipeline {
         stage('Docker Build') {
             steps {
               sh """
+                export DOCKER_BUILDKIT=1
                 docker build -t ${REGISTRY}/${IMAGE_NAME}:${DOCKER_TAG} .
                 docker tag ${REGISTRY}/${IMAGE_NAME}:${DOCKER_TAG} ${REGISTRY}/${IMAGE_NAME}:latest
               """
@@ -51,10 +54,13 @@ pipeline {
         stage('Docker Push') {
             steps {
                 withCredentials([usernamePassword(credentialsId: REGISTRY_CRED, usernameVariable: 'USER', passwordVariable: 'PASS')]) {
-                    sh 'echo $PASS | docker login -u $USER --password-stdin ${REGISTRY}'
-                    sh 'docker push ${REGISTRY}/${IMAGE_NAME}:${DOCKER_TAG}'
-                    sh 'docker push ${REGISTRY}/${IMAGE_NAME}:latest' 
+                    sh '''
+                    echo $PASS | docker login -u $USER --password-stdin
+                    docker push ${REGISTRY}/${IMAGE_NAME}:${DOCKER_TAG}
+                    docker push ${REGISTRY}/${IMAGE_NAME}:latest
+                    '''
             }
         }
     }
+}
 }
